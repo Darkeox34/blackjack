@@ -1,6 +1,8 @@
 #include <iostream>
 #include <Windows.h>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -14,6 +16,8 @@ public:
 
     void printCards(); //Print all the cards in the 8 decks;
 
+    void mesh();
+
     int* getCards() { return cards; }
 
     BlackJack() {
@@ -21,6 +25,18 @@ public:
     }
 
 };
+
+void BlackJack::mesh(){
+    srand(time(0));
+    int r, r1, temp;
+    for(int i = 0; i < 10000; i++){
+        r = rand()%416;
+        r1 = rand()%416;
+        temp = cards[r];
+        cards[r] = cards[r1];
+        cards[r1] = temp;
+    }
+}
 
 void BlackJack::init() {                                
     for (int i = 0; i < 8; i++) {

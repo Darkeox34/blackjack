@@ -1,6 +1,5 @@
 #include <iostream>
 #include <Windows.h>
-#include <vector>
 #include <cstdlib>
 #include <ctime>
 
@@ -13,15 +12,13 @@ public:
     int cc = 0; //Card Counter
 
     void init(); //Initialize the vector cards with 8 decks of 52 cards for a total of 416 cards;
-
     void printCards(); //Print all the cards in the 8 decks;
-
-    void mesh();
-
-    int* getCards() { return cards; }
+    void mesh(); //Mesh the 8 decks of cards together;
+    int* getCards() { return cards; } //Return the array which contains the cards;
 
     BlackJack() {
         init();
+        mesh();
     }
 
 };

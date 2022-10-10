@@ -29,21 +29,22 @@ private:
     int* userDeck = new int[2];
     int* cpuDeck = new int[2];
     int* cards = new int[416];
-public:
     int* userCardsCalled = new int[10];
     int* cpuCardsCalled = new int[10];
+public:
     int userCards = 0;
     int cpuCards = 0;
     bool userTurn = true;
+    bool Called = false;
 
     Game() {
         cards = getCards();
         giveCards();
     }
 
-    void usercall();
+    bool usercall();
 
-    void cpucall();
+    //void cpucall();
 
     void printGame();
 
@@ -53,8 +54,10 @@ public:
     void lose() {
 
     }
-    
+
     bool checkSum();
+
+    int getSum();
 
     void checkWhoWon() {
 
@@ -64,6 +67,16 @@ public:
     void checkIfAce() {
     }
 };
+
+int Game::getSum() {
+    int sum = 0;
+    for (int i = 0; i < userCards; i++) {
+        sum += userCardsCalled[i];
+    }
+    sum = sum + userDeck[0] + userDeck[1];
+
+    return sum;
+}
 
 bool Game::checkSum() {
     int sum = 0;
@@ -78,45 +91,57 @@ bool Game::checkSum() {
     return true;
 }
 
-void Game::usercall() {
+bool Game::usercall() {
+    userCardsCalled[userCards] = cards[givenCards];
+    Called = true;
+    if (checkSum()) {
+        return true;
+    }
+    else
+        return false;
 
 }
 
 void Game::printGame() {
-    int choice;
+    int choice = 0;
     if (userTurn) {
         cout << " Cpu Cards \n" << "  |*|" << " " << cpuDeck[1] << "\n\n";
-        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << "\n";
+        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << " (" << getSum() << ")\n";
+        if (Called) {
+            for (int i = 0; i < userCards; i++) {
+                cout << userCardsCalled[i] << " " << "("  << ")";
+            }
+        }
     }
     else {
         cout << " Cpu Cards \n" << "   " << cpuDeck[0] << " " << cpuDeck[1] << "\n\n";
-        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << "\n";
+        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << "(" << getSum() << ")\n";
+        if (Called) {
+            for (int i = 0; i < userCards; i++) {
+                cout << userCardsCalled[i] << " " << "(" << ")";
+            }
+        }
     }
 
     cout << "\n\n1) Call | 2) Stay | 3) Double ";
     cin >> choice;
     do {
         if (choice == 1)
-            usercall();
-        else if (choice == 2)
-            cpucall();
+            if (!usercall())
+                lose();
+            //else if (choice == 2)
         //else if (choice == 3)
     } while (choice < 0 || choice > 3);
-
-  
-    
 }
 
 void Game::giveCards() {
     for (int i = 0; i < 2; i++) {
         userDeck[i] = cards[givenCards];
         givenCards++;
-        userCards++;
     }
     for (int i = 0; i < 2; i++) {
         cpuDeck[i] = cards[givenCards];
         givenCards++;
-        cpuCards++;
     }
 }
 
@@ -163,5 +188,7 @@ void BlackJack::printCards() {
 
 int main() {
     Game game;
-    game.printGame();
+
+    while(true)
+        game.printGame();
 }

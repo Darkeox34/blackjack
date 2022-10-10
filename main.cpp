@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Windows.h>
+#include <vector>
 #include <cstdlib>
 #include <ctime>
 
@@ -9,33 +10,129 @@ class BlackJack {
 private:
     int* cards = new int[416];
 public:
+    int givenCards; //Cards given
     int cc = 0; //Card Counter
-
     void init(); //Initialize the vector cards with 8 decks of 52 cards for a total of 416 cards;
     void printCards(); //Print all the cards in the 8 decks;
     void mesh(); //Mesh the 8 decks of cards together;
     int* getCards() { return cards; } //Return the array which contains the cards;
 
     BlackJack() {
+        givenCards = 0;
         init();
         mesh();
     }
-
 };
 
-void BlackJack::mesh(){
+class Game : public BlackJack {
+private:
+    int* userDeck = new int[2];
+    int* cpuDeck = new int[2];
+    int* cards = new int[416];
+public:
+    int* userCardsCalled = new int[10];
+    int* cpuCardsCalled = new int[10];
+    int userCards = 0;
+    int cpuCards = 0;
+    bool userTurn = true;
+
+    Game() {
+        cards = getCards();
+        giveCards();
+    }
+
+    void usercall();
+
+    void cpucall();
+
+    void printGame();
+
+    void win() {
+
+    }
+    void lose() {
+
+    }
+    
+    bool checkSum();
+
+    void checkWhoWon() {
+
+    }
+    void giveCards();
+
+    void checkIfAce() {
+    }
+};
+
+bool Game::checkSum() {
+    int sum = 0;
+    for (int i = 0; i < userCards; i++) {
+        sum += userCardsCalled[i];
+    }
+    sum = sum + userDeck[0] + userDeck[1];
+
+    if (sum > 21)
+        return false;
+
+    return true;
+}
+
+void Game::usercall() {
+
+}
+
+void Game::printGame() {
+    int choice;
+    if (userTurn) {
+        cout << " Cpu Cards \n" << "  |*|" << " " << cpuDeck[1] << "\n\n";
+        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << "\n";
+    }
+    else {
+        cout << " Cpu Cards \n" << "   " << cpuDeck[0] << " " << cpuDeck[1] << "\n\n";
+        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << "\n";
+    }
+
+    cout << "\n\n1) Call | 2) Stay | 3) Double ";
+    cin >> choice;
+    do {
+        if (choice == 1)
+            usercall();
+        else if (choice == 2)
+            cpucall();
+        //else if (choice == 3)
+    } while (choice < 0 || choice > 3);
+
+  
+    
+}
+
+void Game::giveCards() {
+    for (int i = 0; i < 2; i++) {
+        userDeck[i] = cards[givenCards];
+        givenCards++;
+        userCards++;
+    }
+    for (int i = 0; i < 2; i++) {
+        cpuDeck[i] = cards[givenCards];
+        givenCards++;
+        cpuCards++;
+    }
+}
+
+void BlackJack::mesh() {
     srand(time(0));
     int r, r1, temp;
-    for(int i = 0; i < 10000; i++){
-        r = rand()%416;
-        r1 = rand()%416;
+    for (int i = 0; i < 10000; i++) {
+        r = rand() % 416;
+        r1 = rand() % 416;
         temp = cards[r];
         cards[r] = cards[r1];
         cards[r1] = temp;
     }
 }
 
-void BlackJack::init() {                                
+void BlackJack::init() {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 13; j++) {
             for (int k = 0; k < 4; k++) {
@@ -65,6 +162,6 @@ void BlackJack::printCards() {
 
 
 int main() {
-    BlackJack bj;
-    bj.printCards();
+    Game game;
+    game.printGame();
 }

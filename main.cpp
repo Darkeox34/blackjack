@@ -36,6 +36,7 @@ public:
     int cpuCards = 0;
     bool userTurn = true;
     bool Called = false;
+    bool end = false;
 
     Game() {
         cards = getCards();
@@ -52,7 +53,8 @@ public:
 
     }
     void lose() {
-
+        MessageBoxA(0, "You lost", "Lost", 0);
+        exit(-1);
     }
 
     bool checkSum();
@@ -66,7 +68,24 @@ public:
 
     void checkIfAce() {
     }
+
+    void reset();
 };
+
+void Game::reset() {
+    for (int i = 0; i < userCards; i++) {
+        userCardsCalled = 0;
+    }
+    for (int i = 0; i < cpuCards; i++) {
+        cpuCardsCalled = 0;
+    }
+    userCards = 0;
+    cpuCards = 0;
+    giveCards();
+    userTurn = true;
+    Called = false;
+    end = false;
+}
 
 int Game::getSum() {
     int sum = 0;
@@ -93,13 +112,14 @@ bool Game::checkSum() {
 
 bool Game::usercall() {
     userCardsCalled[userCards] = cards[givenCards];
+    userCards++;
+    givenCards++;
     Called = true;
     if (checkSum()) {
         return true;
     }
     else
         return false;
-
 }
 
 void Game::printGame() {
@@ -109,7 +129,7 @@ void Game::printGame() {
         cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << " (" << getSum() << ")\n";
         if (Called) {
             for (int i = 0; i < userCards; i++) {
-                cout << userCardsCalled[i] << " " << "("  << ")";
+                cout << "Cards Called: " << userCardsCalled[i] << " " << "\n";
             }
         }
     }
@@ -118,19 +138,19 @@ void Game::printGame() {
         cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << "(" << getSum() << ")\n";
         if (Called) {
             for (int i = 0; i < userCards; i++) {
-                cout << userCardsCalled[i] << " " << "(" << ")";
+                cout << "Cards Called: " << userCardsCalled[i] << " " << "\n";
             }
         }
     }
 
-    cout << "\n\n1) Call | 2) Stay | 3) Double ";
+    cout << "\n\n1) Call | 2) Stay | 3) Double \n\n>> ";
     cin >> choice;
     do {
         if (choice == 1)
             if (!usercall())
                 lose();
-            //else if (choice == 2)
-        //else if (choice == 3)
+        //else if (choice == 2)
+    //else if (choice == 3)
     } while (choice < 0 || choice > 3);
 }
 
@@ -188,7 +208,6 @@ void BlackJack::printCards() {
 
 int main() {
     Game game;
-
-    while(true)
-        game.printGame();
+        while (game.end)
+            game.printGame();
 }

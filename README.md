@@ -1,1 +1,1 @@
-**Work in progress**
+**v.1.0**

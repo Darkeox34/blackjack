@@ -54,7 +54,8 @@ public:
     }
     void lose() {
         MessageBoxA(0, "You lost", "Lost", 0);
-        exit(-1);
+        reset();
+        //exit(-1);
     }
 
     bool checkSum();
@@ -73,12 +74,8 @@ public:
 };
 
 void Game::reset() {
-    for (int i = 0; i < userCards; i++) {
-        userCardsCalled = 0;
-    }
-    for (int i = 0; i < cpuCards; i++) {
-        cpuCardsCalled = 0;
-    }
+    std::fill_n(userCardsCalled, userCards, 0);
+    std::fill_n(cpuCardsCalled, cpuCards, 0);
     userCards = 0;
     cpuCards = 0;
     giveCards();
@@ -123,6 +120,7 @@ bool Game::usercall() {
 }
 
 void Game::printGame() {
+    system("cls");
     int choice = 0;
     if (userTurn) {
         cout << " Cpu Cards \n" << "  |*|" << " " << cpuDeck[1] << "\n\n";
@@ -208,6 +206,7 @@ void BlackJack::printCards() {
 
 int main() {
     Game game;
-        while (game.end)
-            game.printGame();
+    while (!game.end)
+        game.printGame();
+
 }

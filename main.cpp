@@ -34,9 +34,13 @@ private:
 public:
     int userCards = 0;
     int cpuCards = 0;
+    int userAce = 0;
+    int cpuAce = 0;
     bool userTurn = true;
     bool Called = false;
     bool end = false;
+    bool cpuCalled = false;
+    bool stayed = false;
 
     Game() {
         cards = getCards();
@@ -45,61 +49,156 @@ public:
 
     bool usercall();
 
-    //void cpucall();
+    void cpucall();
 
     void printGame();
 
-    void win() {
+    void win();
+    void lose();
+    void draw();
 
-    }
-    void lose() {
-        MessageBoxA(0, "You lost", "Lost", 0);
-        reset();
-        //exit(-1);
-    }
+    bool checkSum(string deck);
 
-    bool checkSum();
+    int getSum(string deck);
 
-    int getSum();
+    void stay();
 
-    void checkWhoWon() {
-
-    }
     void giveCards();
 
-    void checkIfAce() {
-    }
+    void checkIfAce(string deck);
 
     void reset();
+
+    void callLose();
 };
+
+void Game::checkIfAce(string deck) {
+    if (deck == "user") {
+        if ((userDeck[0] == 1 || cpuDeck[1] == 1) && getSum("user") + 10 <= 21) {
+            userAce = 10;
+        }
+        else
+            userAce = 0;
+        for (int i = 0; i < userCards; i++) {
+            if (userCardsCalled[i] == 1 && (getSum("user") + 10) <= 21) {
+                userAce = 10;
+            }
+            else
+                userAce = 0;
+        }
+    }
+    else {
+        if ((cpuDeck[0] == 1 || cpuDeck[1] == 1) && (getSum("cpu") + 10) <= 21)
+            cpuAce = 10;
+        else
+            cpuAce = 0;
+        for (int i = 0; i < cpuCards; i++) {
+            if (cpuCardsCalled[i] == 1 && (getSum("cpu") + 10) <= 21) {
+                cpuAce = 10;
+            }
+            else
+                cpuAce = 0;
+        }
+    }
+}
+
+void Game::callLose() {
+    MessageBoxA(0, "The sum of your cards was higher than 21!", "Lost!", 0);
+    reset();
+}
+
+void Game::draw() {
+    MessageBoxA(0, "Draw", "Draw", 0);
+    reset();
+}
+
+void Game::win() {
+    MessageBoxA(0, "You won", "Win!", 0);
+    reset();
+}
+
+void Game::cpucall() {
+    cpuCardsCalled[cpuCards] = cards[givenCards];
+    givenCards++;
+    cpuCards++;
+    cpuCalled = true;
+}
+
+void Game::stay() {
+    stayed = true;
+    userTurn = false;
+    while (getSum("cpu") < 17) {
+        cpucall();
+        printGame();
+    }
+    printGame();
+    if (getSum("cpu") < getSum("user") || getSum("cpu") > 21) {
+        win();
+    }
+    else if (getSum("cpu") == 21 && getSum("user") == 21)
+    {
+        draw();
+    }
+
+    else if (getSum("cpu") >= getSum("user") && getSum("cpu") <= 21) {
+        lose();
+    }
+
+}
+
+
+void Game::lose() {
+    MessageBoxA(0, "You lost", "Lost", 0);
+    reset();
+}
 
 void Game::reset() {
     std::fill_n(userCardsCalled, userCards, 0);
     std::fill_n(cpuCardsCalled, cpuCards, 0);
     userCards = 0;
+    userAce = 0;
+    cpuAce = 0;
     cpuCards = 0;
     giveCards();
+    stayed = false;
     userTurn = true;
     Called = false;
     end = false;
 }
 
-int Game::getSum() {
+int Game::getSum(string deck) {
     int sum = 0;
-    for (int i = 0; i < userCards; i++) {
-        sum += userCardsCalled[i];
+    if (deck == "user") {
+        for (int i = 0; i < userCards; i++) {
+            sum += userCardsCalled[i];
+        }
+        sum = sum + userDeck[0] + userDeck[1] + userAce;
     }
-    sum = sum + userDeck[0] + userDeck[1];
+    else {
+        for (int i = 0; i < cpuCards; i++) {
+            sum += cpuCardsCalled[i];
+        }
+        sum = sum + cpuDeck[0] + cpuDeck[1] + cpuAce;
+    }
 
     return sum;
 }
 
-bool Game::checkSum() {
+bool Game::checkSum(string deck) {
     int sum = 0;
-    for (int i = 0; i < userCards; i++) {
-        sum += userCardsCalled[i];
+    if (deck == "user") {
+        for (int i = 0; i < userCards; i++) {
+            sum += userCardsCalled[i];
+        }
+        sum = sum + userDeck[0] + userDeck[1] + userAce;
     }
-    sum = sum + userDeck[0] + userDeck[1];
+    else {
+        for (int i = 0; i < cpuCards; i++) {
+            sum += cpuCardsCalled[i];
+        }
+        sum = sum + cpuDeck[0] + cpuDeck[1] + cpuAce;
+    }
+
 
     if (sum > 21)
         return false;
@@ -112,7 +211,7 @@ bool Game::usercall() {
     userCards++;
     givenCards++;
     Called = true;
-    if (checkSum()) {
+    if (checkSum("user")) {
         return true;
     }
     else
@@ -122,34 +221,47 @@ bool Game::usercall() {
 void Game::printGame() {
     system("cls");
     int choice = 0;
+    checkIfAce("user");
+    checkIfAce("cpu");
     if (userTurn) {
         cout << " Cpu Cards \n" << "  |*|" << " " << cpuDeck[1] << "\n\n";
-        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << " (" << getSum() << ")\n";
+        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << " (" << getSum("user") << ")\n";
         if (Called) {
+            cout << "Cards Called: ";
             for (int i = 0; i < userCards; i++) {
-                cout << "Cards Called: " << userCardsCalled[i] << " " << "\n";
+               cout << userCardsCalled[i] << " ";
             }
         }
     }
     else {
-        cout << " Cpu Cards \n" << "   " << cpuDeck[0] << " " << cpuDeck[1] << "\n\n";
-        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << "(" << getSum() << ")\n";
+        cout << " Dealer Cards \n" << "   " << cpuDeck[0] << " " << cpuDeck[1] << " (" << getSum("cpu") << ")\n\n";
+        if (cpuCalled) {
+            cout << "Dealer Called: ";
+            for (int i = 0; i < cpuCards; i++) {
+                 cout << cpuCardsCalled[i] << " ";
+            }
+            cout << "\n\n";
+        }
+        cout << " Your Cards \n" << "   " << userDeck[0] << " " << userDeck[1] << "(" << getSum("user") << ")\n";
         if (Called) {
+            cout << "Cards Called: ";
             for (int i = 0; i < userCards; i++) {
-                cout << "Cards Called: " << userCardsCalled[i] << " " << "\n";
+                cout << userCardsCalled[i] << " ";
             }
         }
     }
-
-    cout << "\n\n1) Call | 2) Stay | 3) Double \n\n>> ";
-    cin >> choice;
-    do {
-        if (choice == 1)
-            if (!usercall())
-                lose();
-        //else if (choice == 2)
-    //else if (choice == 3)
-    } while (choice < 0 || choice > 3);
+    if (!stayed) {
+        cout << "\n\n1) Call | 2) Stay\n\n>> ";
+        cin >> choice;
+        do {
+            if (choice == 1)
+                if (!usercall()) {
+                    callLose();
+                }
+            if (choice == 2)
+                stay();
+        } while (choice < 0 || choice > 2);
+    }
 }
 
 void Game::giveCards() {
